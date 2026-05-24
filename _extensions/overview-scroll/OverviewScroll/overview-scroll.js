@@ -4,7 +4,7 @@ var OverviewScroll = (function () {
     velocityScale: 0.3,  // how much scroll speed amplifies delta
     maxBoost:      4,    // cap on velocity boost (multiplier maxes at 5x)
     decayMs:       250,  // ms of inactivity before gesture resets
-    cooldown:      100,  // ms between individual slide navigations
+    cooldown:      150,  // ms between navigations per axis (must be >= transitionMs)
     transitionMs:  140,  // overview pan animation duration
   };
 
@@ -20,7 +20,8 @@ var OverviewScroll = (function () {
       var accumX     = 0;
       var accumY     = 0;
       var lastTime   = 0; // 0 on first event so velocity boost is skipped (no prior reference point)
-      var lastNav    = 0;
+      var lastNavX   = 0; // independent cooldowns so horizontal and vertical don't block each other
+      var lastNavY   = 0;
       var lockedAxis = null; // 'x' or 'y', held for the duration of a gesture
       var decayTimer = null;
       var slidesEl   = deck.getSlidesElement();
@@ -57,18 +58,16 @@ var OverviewScroll = (function () {
         clearTimeout(decayTimer);
         decayTimer = setTimeout(resetGesture, cfg.decayMs);
 
-        // Horizontal navigation only from the first row (v === 0).
         while (Math.abs(accumX) >= cfg.threshold) {
-          if (Date.now() - lastNav < cfg.cooldown) break;
-          if (deck.getIndices().v !== 0) { accumX = 0; break; }
+          if (Date.now() - lastNavX < cfg.cooldown) break;
           if (accumX > 0) deck.navigateRight(); else deck.navigateLeft();
-          lastNav = Date.now();
+          lastNavX = Date.now();
           accumX -= (accumX > 0 ? 1 : -1) * cfg.threshold;
         }
         while (Math.abs(accumY) >= cfg.threshold) {
-          if (Date.now() - lastNav < cfg.cooldown) break;
+          if (Date.now() - lastNavY < cfg.cooldown) break;
           if (accumY > 0) deck.navigateDown(); else deck.navigateUp();
-          lastNav = Date.now();
+          lastNavY = Date.now();
           accumY -= (accumY > 0 ? 1 : -1) * cfg.threshold;
         }
       }

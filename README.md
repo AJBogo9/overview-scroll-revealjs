@@ -4,7 +4,7 @@ A Quarto extension that adds mouse-wheel and touch navigation to RevealJS overvi
 
 Press **O** to enter overview mode, then:
 
-- Scroll **horizontally** to move between slide columns (only from the first row)
+- Scroll **horizontally** to move between slide columns
 - Scroll **vertically** to move between rows within a column
 - Swipe on touch devices using the same directional logic
 
@@ -54,5 +54,5 @@ format:
 | `velocityScale` | `0.3`   | How much scroll speed amplifies delta (set to `0` to disable)  |
 | `maxBoost`      | `4`     | Cap on velocity boost (total multiplier maxes at 5×)           |
 | `decayMs`       | `250`   | ms of inactivity before the gesture resets                     |
-| `cooldown`      | `100`   | ms between individual slide navigations                        |
+| `cooldown`      | `150`   | ms between navigations per axis — keep this >= `transitionMs`  |
 | `transitionMs`  | `140`   | Duration of the overview pan animation (ms)                    |

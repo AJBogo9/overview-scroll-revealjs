@@ -2,3 +2,4 @@ _site/
 /.quarto/
 *_files/
 *.html
+.playwright-mcp/
