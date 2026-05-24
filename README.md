@@ -48,11 +48,14 @@ format:
       cooldown: 100
 ```
 
-| Option          | Default | Description                                                    |
-|-----------------|---------|----------------------------------------------------------------|
-| `threshold`     | `60`    | Accumulated scroll (px) needed to navigate one slide           |
-| `velocityScale` | `0.3`   | How much scroll speed amplifies delta (set to `0` to disable)  |
-| `maxBoost`      | `4`     | Cap on velocity boost (total multiplier maxes at 5×)           |
-| `decayMs`       | `250`   | ms of inactivity before the gesture resets                     |
-| `cooldown`      | `150`   | ms between navigations per axis — keep this >= `transitionMs`  |
-| `transitionMs`  | `140`   | Duration of the overview pan animation (ms)                    |
+| Option          | Default | Description                                                               |
+|-----------------|---------|---------------------------------------------------------------------------|
+| `threshold`     | `60`    | Accumulated scroll (px) needed to navigate one slide                      |
+| `velocityScale` | `0.3`   | How much scroll speed amplifies delta (set to `0` to disable)             |
+| `maxBoost`      | `4`     | Cap on velocity boost (total multiplier maxes at 5×)                      |
+| `decayMs`       | `250`   | ms of inactivity before the gesture resets                                |
+| `cooldown`      | `150`   | ms between navigations per axis — keep this >= `transitionMs`             |
+| `transitionMs`  | `140`   | Duration of the pan animation when navigating between slides              |
+| `zoomMs`        | `500`   | Default duration for both zoom-in and zoom-out animations                 |
+| `zoomInMs`      | `null`  | Duration override for the zoom-in animation (falls back to `zoomMs`)      |
+| `zoomOutMs`     | `null`  | Duration override for the zoom-out animation (falls back to `zoomMs`)     |
