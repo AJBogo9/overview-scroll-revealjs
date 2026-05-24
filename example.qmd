@@ -3,31 +3,53 @@ title: "Overview Scroll"
 subtitle: "Mouse-wheel navigation for RevealJS overview mode"
 format: revealjs
 revealjs-plugins:
-  - OverviewScroll
+  - overview-scroll
 ---
+
+# Column A
 
 ## What is Overview Scroll?
 
 - Press **O** to enter overview mode
-- Scroll horizontally to move between slide columns
+- Scroll horizontally to move between columns
 - Scroll vertically to move between rows within a column
 - Press **O** again (or **Escape**) to return to the selected slide
 
-## Column A — Slide 2
+## Column A — Row 2
 
-This is the second horizontal slide.
+Second row in Column A.
 
-::: {.fragment}
-Scroll right in overview mode to reach Column B.
-:::
+## Column A — Row 3
 
-## Column B — Slide 3
+Third row in Column A.
 
-This is the third horizontal slide.
+# Column B
 
-::: {.fragment}
-Scroll left to go back.
-:::
+## Column B — Row 1
+
+First row in Column B.
+
+## Column B — Row 2
+
+Second row in Column B.
+
+## Column B — Row 3
+
+Third row in Column B.
+
+# Column C
+
+## Column C — Row 1
+
+First row in Column C.
+
+## Column C — Row 2
+
+Second row in Column C.
+
+## Column C — Row 3
+
+Third row in Column C.
 
 ## Installation
 
@@ -39,5 +61,5 @@ Then add to your document front matter:
 
 ```yaml
 revealjs-plugins:
-  - OverviewScroll
+  - overview-scroll
 ```

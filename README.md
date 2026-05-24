@@ -1,11 +1,14 @@
 # overview-scroll-revealjs
 
-A Quarto extension that adds mouse-wheel navigation to RevealJS overview mode, inspired by GNOME's workspace switcher.
+A Quarto extension that adds mouse-wheel and touch navigation to RevealJS overview mode, inspired by GNOME's workspace switcher.
 
 Press **O** to enter overview mode, then:
 
-- Scroll **horizontally** to move between slide columns
+- Scroll **horizontally** to move between slide columns (only from the first row)
 - Scroll **vertically** to move between rows within a column
+- Swipe on touch devices using the same directional logic
+
+Each gesture commits to one axis (horizontal or vertical) and holds it for the duration of the scroll, preventing accidental diagonal navigation.
 
 ## Installation
 
@@ -20,7 +23,7 @@ Add the plugin to your document's front matter:
 ```yaml
 format: revealjs
 revealjs-plugins:
-  - OverviewScroll
+  - overview-scroll
 ```
 
 Works alongside any other RevealJS theme or format extension, including [liquid-glass-revealjs](https://github.com/AJBogo9/liquid-glass-revealjs):
@@ -30,14 +33,26 @@ format:
   liquid-glass-revealjs:
     slide-number: true
 revealjs-plugins:
-  - OverviewScroll
+  - overview-scroll
 ```
 
 ## Options
 
-The extension ships with sensible defaults. To tweak behaviour, fork the plugin and adjust the constants at the top of `overview-scroll.js`:
+All options are optional. Pass them under `OverviewScroll` in your Reveal format config:
 
-| Constant    | Default | Description                                      |
-|-------------|---------|--------------------------------------------------|
-| `THRESHOLD` | `20`    | Minimum scroll delta (px) before navigating      |
-| `COOLDOWN`  | `350`   | Minimum time (ms) between consecutive navigations |
+```yaml
+format:
+  revealjs:
+    OverviewScroll:
+      threshold: 60
+      cooldown: 100
+```
+
+| Option          | Default | Description                                                    |
+|-----------------|---------|----------------------------------------------------------------|
+| `threshold`     | `60`    | Accumulated scroll (px) needed to navigate one slide           |
+| `velocityScale` | `0.3`   | How much scroll speed amplifies delta (set to `0` to disable)  |
+| `maxBoost`      | `4`     | Cap on velocity boost (total multiplier maxes at 5×)           |
+| `decayMs`       | `250`   | ms of inactivity before the gesture resets                     |
+| `cooldown`      | `100`   | ms between individual slide navigations                        |
+| `transitionMs`  | `140`   | Duration of the overview pan animation (ms)                    |
