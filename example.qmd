@@ -1,0 +1,43 @@
+---
+title: "Overview Scroll"
+subtitle: "Mouse-wheel navigation for RevealJS overview mode"
+format: revealjs
+revealjs-plugins:
+  - OverviewScroll
+---
+
+## What is Overview Scroll?
+
+- Press **O** to enter overview mode
+- Scroll horizontally to move between slide columns
+- Scroll vertically to move between rows within a column
+- Press **O** again (or **Escape**) to return to the selected slide
+
+## Column A — Slide 2
+
+This is the second horizontal slide.
+
+::: {.fragment}
+Scroll right in overview mode to reach Column B.
+:::
+
+## Column B — Slide 3
+
+This is the third horizontal slide.
+
+::: {.fragment}
+Scroll left to go back.
+:::
+
+## Installation
+
+```bash
+quarto add AJBogo9/overview-scroll-revealjs
+```
+
+Then add to your document front matter:
+
+```yaml
+revealjs-plugins:
+  - OverviewScroll
+```
