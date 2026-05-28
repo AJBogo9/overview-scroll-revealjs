@@ -103,6 +103,35 @@ var OverviewScroll = (function () {
         }
       }
 
+      // ── UI overlay fade ───────────────────────────────────────────────────
+      // The slide-number, progress bar, hamburger, and footer update their
+      // values the instant toggleOverview fires. We hide them for that one
+      // frame and fade them back in so the value change is never visible.
+      var uiEls = revealEl.querySelectorAll(
+        '.controls, .progress, .slide-number, .slide-menu-button, .footer'
+      );
+
+      function hideUI() {
+        for (var i = 0; i < uiEls.length; i++) {
+          uiEls[i].style.transition = 'none';
+          uiEls[i].style.opacity    = '0';
+        }
+      }
+
+      function showUI() {
+        requestAnimationFrame(function () {
+          for (var i = 0; i < uiEls.length; i++) {
+            uiEls[i].style.transition = 'opacity 150ms';
+            uiEls[i].style.opacity    = '';
+          }
+          setTimeout(function () {
+            for (var i = 0; i < uiEls.length; i++) {
+              uiEls[i].style.transition = '';
+            }
+          }, 150);
+        });
+      }
+
       // ── FLIP helpers ─────────────────────────────────────────────────────
 
       // Record the screen rect of the current slide thumbnail (must be called
@@ -236,12 +265,14 @@ var OverviewScroll = (function () {
           // clear .reveal and toggle overview in the same task so there is no
           // intermediate paint — the switch is seamless.
           clearPaddingTops();
+          hideUI();
           revealEl.style.transition      = 'none';
           revealEl.style.transform       = '';
           revealEl.style.transformOrigin = '';
           slidesEl.style.transition      = '';
           deck.toggleOverview(false); // overviewhidden fires; exitingOverview suppresses it
           exitingOverview = false;
+          showUI();
         }, zoomInMs);
       }
 
