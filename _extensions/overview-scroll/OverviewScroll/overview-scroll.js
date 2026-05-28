@@ -40,6 +40,69 @@ var OverviewScroll = (function () {
       var slidesEl = deck.getSlidesElement();
       var revealEl = deck.getRevealElement();
 
+      // ── Overview thumbnail centering ──────────────────────────────────────
+      // RevealJS resets every section's vertical-centering offset to `top:0px
+      // !important` when entering overview (a CSS rule that inline styles cannot
+      // override). We re-apply the same centering as `padding-top` instead —
+      // that property is not clobbered by the rule.
+      //
+      // Strategy: snapshot each section's inline `top` style while still in
+      // presentation mode (where RevealJS has set it to the exact centering px).
+      // In overviewshown, use those saved values directly so our padding-top
+      // matches RevealJS's own number and there is no positional jump when
+      // overview switches back to presentation mode. Fall back to an offsetHeight
+      // estimate for sections whose top was not yet snapshotted.
+      var savedTops = new WeakMap();
+
+      function saveTops() {
+        var sections = slidesEl.querySelectorAll('section');
+        for (var i = 0; i < sections.length; i++) {
+          var t = sections[i].style.top;
+          if (t && t !== '0px') savedTops.set(sections[i], t);
+        }
+      }
+
+      // Capture before RevealJS adds the `overview` class (keydown fires first
+      // in capture phase, before any overview layout resets happen).
+      document.addEventListener('keydown', function (e) {
+        if (!deck.isOverview() && (e.key === 'o' || e.key === 'O')) saveTops();
+      }, true);
+
+      deck.on('ready',  saveTops);
+      deck.on('resize', saveTops);
+
+      function applyTopsAsPadding() {
+        var slideH = deck.getConfig().height || 700;
+        var sections = slidesEl.querySelectorAll('section');
+        for (var i = 0; i < sections.length; i++) {
+          var s = sections[i];
+          if (s.classList.contains('stack')) continue;
+          var saved = savedTops.get(s);
+          if (saved) {
+            s.style.paddingTop = saved;
+          } else {
+            // Fallback: derive centering from children's layout heights.
+            var contentH = 0;
+            for (var j = 0; j < s.children.length; j++) {
+              var child = s.children[j];
+              var cs = window.getComputedStyle(child);
+              contentH += child.offsetHeight +
+                parseFloat(cs.marginTop  || 0) +
+                parseFloat(cs.marginBottom || 0);
+            }
+            var pad = Math.max(0, Math.round((slideH - contentH) / 2));
+            if (pad > 0) s.style.paddingTop = pad + 'px';
+          }
+        }
+      }
+
+      function clearPaddingTops() {
+        var sections = slidesEl.querySelectorAll('section');
+        for (var i = 0; i < sections.length; i++) {
+          sections[i].style.paddingTop = '';
+        }
+      }
+
       // ── FLIP helpers ─────────────────────────────────────────────────────
 
       // Record the screen rect of the current slide thumbnail (must be called
@@ -172,6 +235,7 @@ var OverviewScroll = (function () {
           // The selected slide now fills the viewport. Snap to presentation mode:
           // clear .reveal and toggle overview in the same task so there is no
           // intermediate paint — the switch is seamless.
+          clearPaddingTops();
           revealEl.style.transition      = 'none';
           revealEl.style.transform       = '';
           revealEl.style.transformOrigin = '';
@@ -191,6 +255,7 @@ var OverviewScroll = (function () {
         // was opened do not trigger immediate navigation.
         resetGesture();
         lastTime = 0;
+        applyTopsAsPadding();
         zoomOut();
       });
 
@@ -200,35 +265,36 @@ var OverviewScroll = (function () {
         // Overview is already hidden here, so use a reverse FLIP from the thumbnail.
         slidesEl.style.transition = '';
         if (!thumbRect) return;
-        var vw2        = window.innerWidth;
-        var vh2        = window.innerHeight;
-        var revealCfg2 = deck.getConfig();
-        var slideW2    = revealCfg2.width  || 1050;
-        var slideH2    = revealCfg2.height || 700;
-        var margin2    = revealCfg2.margin != null ? revealCfg2.margin : 0.1;
-        var rScale2    = Math.min(vw2 / (slideW2 * (1 + 2 * margin2)), vh2 / (slideH2 * (1 + 2 * margin2)));
-        var pW2        = slideW2 * rScale2;
-        var pH2        = slideH2 * rScale2;
-        var presentX2  = (vw2 - pW2) / 2;
-        var presentY2  = (vh2 - pH2) / 2;
+        var vw        = window.innerWidth;
+        var vh        = window.innerHeight;
+        var revealCfg = deck.getConfig();
+        var slideW    = revealCfg.width  || 1050;
+        var slideH    = revealCfg.height || 700;
+        var margin    = revealCfg.margin != null ? revealCfg.margin : 0.1;
+        var rScale    = Math.min(vw / (slideW * (1 + 2 * margin)), vh / (slideH * (1 + 2 * margin)));
+        var presentW  = slideW * rScale;
+        var presentH  = slideH * rScale;
+        var presentX  = (vw - presentW) / 2;
+        var presentY  = (vh - presentH) / 2;
         // Use the same translate+scale math as doZoomIn so the fallback animation
         // is the exact reverse: start at the thumbnail position, zoom to full slide.
-        var sx2        = pW2 / thumbRect.width;
-        var sy2        = pH2 / thumbRect.height;
-        var tx2        = presentX2 - thumbRect.left * sx2;
-        var ty2        = presentY2 - thumbRect.top  * sy2;
-        var startTransform2 = 'translate(' + tx2 + 'px,' + ty2 + 'px) scale(' + sx2 + ',' + sy2 + ')';
+        var sx           = presentW / thumbRect.width;
+        var sy           = presentH / thumbRect.height;
+        var tx           = presentX - thumbRect.left * sx;
+        var ty           = presentY - thumbRect.top  * sy;
+        var startTransform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + sx + ',' + sy + ')';
         clearTimeout(flipTimer);
         flipInProgress = false;
         revealEl.style.transition      = 'none';
         revealEl.style.transform       = '';
         revealEl.style.transformOrigin = '0 0';
         revealEl.offsetHeight;
-        revealEl.style.transform = startTransform2;
+        revealEl.style.transform = startTransform;
         revealEl.offsetHeight;
         revealEl.style.transition = ZOOM_IN_TRANS;
         revealEl.style.transform  = '';
         flipTimer = setTimeout(function () {
+          clearPaddingTops();
           revealEl.style.transition      = '';
           revealEl.style.transform       = '';
           revealEl.style.transformOrigin = '';
