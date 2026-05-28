@@ -1,4 +1,4 @@
-var OverviewScroll = (function () {
+var OverviewEnhanced = (function () {
   var DEFAULTS = {
     threshold:     60,   // accumulated px to trigger one slide navigation
     velocityScale: 0.3,  // how much scroll speed amplifies delta
@@ -14,10 +14,10 @@ var OverviewScroll = (function () {
   var AXIS_LOCK_MIN = 3; // min delta magnitude (px) before committing to an axis
 
   return {
-    id: 'overview-scroll',
+    id: 'overview-enhanced',
 
     init: function (deck) {
-      var cfg = Object.assign({}, DEFAULTS, deck.getConfig().OverviewScroll || {});
+      var cfg = Object.assign({}, DEFAULTS, deck.getConfig().OverviewEnhanced || {});
       var zoomInMs  = cfg.zoomInMs  != null ? cfg.zoomInMs  : cfg.zoomMs;
       var zoomOutMs = cfg.zoomOutMs != null ? cfg.zoomOutMs : cfg.zoomMs;
       var NAV_TRANSITION   = 'transform ' + cfg.transitionMs + 'ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -55,6 +55,7 @@ var OverviewScroll = (function () {
       var savedTops = new WeakMap();
 
       function saveTops() {
+        if (deck.isOverview()) return; // tops are reset to 0px in overview — useless
         var sections = slidesEl.querySelectorAll('section');
         for (var i = 0; i < sections.length; i++) {
           var t = sections[i].style.top;
@@ -68,8 +69,9 @@ var OverviewScroll = (function () {
         if (!deck.isOverview() && (e.key === 'o' || e.key === 'O')) saveTops();
       }, true);
 
-      deck.on('ready',  saveTops);
-      deck.on('resize', saveTops);
+      deck.on('ready',        saveTops);
+      deck.on('resize',       saveTops);
+      deck.on('slidechanged', saveTops); // accumulate tops as slides are visited
 
       function applyTopsAsPadding() {
         var slideH = deck.getConfig().height || 700;
@@ -78,10 +80,14 @@ var OverviewScroll = (function () {
           var s = sections[i];
           if (s.classList.contains('stack')) continue;
           var saved = savedTops.get(s);
+          var pad;
           if (saved) {
-            s.style.paddingTop = saved;
+            // RevealJS's exact computed value — most accurate.
+            pad = parseFloat(saved);
           } else {
-            // Fallback: derive centering from children's layout heights.
+            // Unvisited slide: estimate centering from children's layout heights.
+            // offsetHeight is unaffected by CSS transforms so this reads full-size
+            // dimensions correctly even in scaled overview mode.
             var contentH = 0;
             for (var j = 0; j < s.children.length; j++) {
               var child = s.children[j];
@@ -90,9 +96,9 @@ var OverviewScroll = (function () {
                 parseFloat(cs.marginTop  || 0) +
                 parseFloat(cs.marginBottom || 0);
             }
-            var pad = Math.max(0, Math.round((slideH - contentH) / 2));
-            if (pad > 0) s.style.paddingTop = pad + 'px';
+            pad = Math.max(0, Math.round((slideH - contentH) / 2));
           }
+          if (pad > 0) s.style.paddingTop = pad + 'px';
         }
       }
 

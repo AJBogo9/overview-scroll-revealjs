@@ -1,19 +1,21 @@
-# overview-scroll-revealjs
+# overview-enhanced-revealjs
 
-A Quarto extension that adds mouse-wheel and touch navigation to RevealJS overview mode, inspired by GNOME's workspace switcher.
+A Quarto extension that enhances RevealJS overview mode with scroll navigation, FLIP zoom animations, and corrected thumbnail rendering.
 
 Press **O** to enter overview mode, then:
 
 - Scroll **horizontally** to move between slide columns
 - Scroll **vertically** to move between rows within a column
 - Swipe on touch devices using the same directional logic
+- Click any slide to zoom in with animation
+- Press **O** or **Escape** to zoom back to the selected slide
 
 Each gesture commits to one axis (horizontal or vertical) and holds it for the duration of the scroll, preventing accidental diagonal navigation.
 
 ## Installation
 
 ```bash
-quarto add AJBogo9/overview-scroll-revealjs
+quarto add AJBogo9/overview-enhanced-revealjs
 ```
 
 ## Usage
@@ -23,7 +25,7 @@ Add the plugin to your document's front matter:
 ```yaml
 format: revealjs
 revealjs-plugins:
-  - overview-scroll
+  - overview-enhanced
 ```
 
 Works alongside any other RevealJS theme or format extension, including [liquid-glass-revealjs](https://github.com/AJBogo9/liquid-glass-revealjs):
@@ -33,17 +35,17 @@ format:
   liquid-glass-revealjs:
     slide-number: true
 revealjs-plugins:
-  - overview-scroll
+  - overview-enhanced
 ```
 
 ## Options
 
-All options are optional. Pass them under `OverviewScroll` in your Reveal format config:
+All options are optional. Pass them under `OverviewEnhanced` in your Reveal format config:
 
 ```yaml
 format:
   revealjs:
-    OverviewScroll:
+    OverviewEnhanced:
       threshold: 60
       cooldown: 100
 ```

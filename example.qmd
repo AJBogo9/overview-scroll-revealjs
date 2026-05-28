@@ -1,14 +1,14 @@
 ---
-title: "Overview Scroll"
-subtitle: "Mouse-wheel navigation for RevealJS overview mode"
+title: "Overview Enhanced"
+subtitle: "Scroll navigation and zoom animations for RevealJS overview mode"
 format: revealjs
 revealjs-plugins:
-  - overview-scroll
+  - overview-enhanced
 ---
 
 # Column A
 
-## What is Overview Scroll?
+## What is Overview Enhanced?
 
 - Press **O** to enter overview mode
 - Scroll horizontally to move between columns
@@ -54,12 +54,12 @@ Third row in Column C.
 ## Installation
 
 ```bash
-quarto add AJBogo9/overview-scroll-revealjs
+quarto add AJBogo9/overview-enhanced-revealjs
 ```
 
 Then add to your document front matter:
 
 ```yaml
 revealjs-plugins:
-  - overview-scroll
+  - overview-enhanced
 ```
